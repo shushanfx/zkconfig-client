@@ -1,9 +1,15 @@
-package com.shushanfx.zconfig.client;
+package com.shushanfx.zconfig.client.config;
+
+import com.shushanfx.zconfig.client.config.ZNodeConfig;
+
+import java.util.List;
 
 /**
- * Created by dengjianxin on 2017/6/12.
+ * Created by shushanfx on 2017/6/12.
  */
 public abstract class AbstractZNodeConfig implements ZNodeConfig {
+    private String content = null;
+
     @Override
     public int getInteger(String path, int defaultValue) {
         Integer integer = getInteger(path);
@@ -26,5 +32,21 @@ public abstract class AbstractZNodeConfig implements ZNodeConfig {
     public double getDouble(String path, double defaultValue) {
         Double d = getDouble(path);
         return d == null ? defaultValue : d.doubleValue();
+    }
+
+    @Override
+    public List getList(String path, List defaultValue) {
+        List list = getList(path);
+        return list == null ? list : defaultValue;
+    }
+
+    @Override
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    @Override
+    public String getContent() {
+        return this.content;
     }
 }

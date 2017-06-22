@@ -1,4 +1,4 @@
-package com.shushanfx.zconfig.client;
+package com.shushanfx.zconfig.client.util;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -7,7 +7,7 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 /**
- * Created by dengjianxin on 2017/6/12.
+ * Created by shushanfx on 2017/6/12.
  */
 public class JSON {
     private static final Gson gson = new Gson();

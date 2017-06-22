@@ -1,7 +1,7 @@
-package com.shushanfx.zconfig.client;
+package com.shushanfx.zconfig.client.util;
 
 /**
- * Created by dengjianxin on 2017/6/12.
+ * Created by shushanfx on 2017/6/12.
  */
 public final class Assert {
     public static void notNull(Object obj, String message){

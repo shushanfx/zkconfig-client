@@ -2,14 +2,13 @@ package com.shushanfx.zconfig.client;
 
 
 /**
- * 客户端连接到server的虚拟node
- * Created by dengjianxin on 2017/6/12.
+ * Connection information.
+ * Created by shushanfx on 2017/6/12.
  */
-public class VNode {
+public class ZNodeConnection {
     private String ip = null;
     private String id = null;
     private String path = null;
-
     private long connectedTime = 0L;
 
     public String getIp() {

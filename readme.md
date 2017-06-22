@@ -1,5 +1,5 @@
 # ZKConfig client
-Read config from zookeeper system, supporting rich api to handle the config.
+Read config from zookeeper system, supporting rich api to handle the config. See [zkconfig-server](https://github.com/shushanfx/zkconfig-server) for more detail.
 
 ## How to use
 ```xml
@@ -11,33 +11,30 @@ Read config from zookeeper system, supporting rich api to handle the config.
     </dependency>
 </dependencies>
 ```
-> If you can not down load this, use the jar package.
+> If you can not down load this, use the jar package. see release.
 
 You can use it like this:
 ```java
 package com.shushanfx.zconfig.client;
 
+import com.shushanfx.zconfig.client.config.ZNodeConfig;
+import com.shushanfx.zconfig.client.listener.ZNodeDataListener;
+
 import java.util.Scanner;
 
-/**
- * Created by dengjianxin on 2017/6/12.
- */
 public class ZClientMain {
     public static void main(String[] args) {
         ZClient client = new ZClient();
-        // set the servers
         client.setServers("10.110.28.204:2181");
-        // set the path
         client.setPath("/zkconfig/config/test");
-        // if notify the config center
         client.setMonitor(true);
         client.setMonitorPath("/zkconfig/connection");
-        // handle the config
-        client.addListener((config, content) -> {
-            System.out.println("Config is load:\n " + content);
-            System.out.println("Read value from name: " + config.getString("name", "defaultValue"));
+        client.addListener(new ZNodeDataListener() {
+            public void handle(ZNodeConfig config) {
+                System.out.println("Read value from name: " + config.getString("name", "defaultValue"));
+            }
         });
-        client.init();
+        client.connect();
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("Press enter to exit.");
