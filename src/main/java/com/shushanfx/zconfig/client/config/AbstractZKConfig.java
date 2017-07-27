@@ -1,13 +1,13 @@
 package com.shushanfx.zconfig.client.config;
 
-import com.shushanfx.zconfig.client.config.ZNodeConfig;
+import com.shushanfx.zconfig.client.ZKConfig;
 
 import java.util.List;
 
 /**
  * Created by shushanfx on 2017/6/12.
  */
-public abstract class AbstractZNodeConfig implements ZNodeConfig {
+public abstract class AbstractZKConfig implements ZKConfig {
     private String content = null;
 
     @Override

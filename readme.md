@@ -7,7 +7,7 @@ Read config from zookeeper system, supporting rich api to handle the config. See
     <dependency>
         <groupId>com.shushanfx</groupId>
         <artifactId>zkconfig-client</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0-RELEASE</version>
     </dependency>
 </dependencies>
 ```
@@ -17,8 +17,8 @@ You can use it like this:
 ```java
 package com.shushanfx.zconfig.client;
 
-import com.shushanfx.zconfig.client.config.ZNodeConfig;
-import com.shushanfx.zconfig.client.listener.ZNodeDataListener;
+import com.shushanfx.zconfig.client.ZKConfig;
+import com.shushanfx.zconfig.client.listener.ZKConfigDataListener;
 
 import java.util.Scanner;
 

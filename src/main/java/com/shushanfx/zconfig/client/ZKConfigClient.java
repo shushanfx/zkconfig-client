@@ -1,12 +1,10 @@
 package com.shushanfx.zconfig.client;
 
-import com.shushanfx.zconfig.client.config.ZNodeConfig;
-import com.shushanfx.zconfig.client.config.ZNodePropertiesConfig;
-import com.shushanfx.zconfig.client.listener.ZNodeListener;
-import com.shushanfx.zconfig.client.parser.ZNodeParser;
+import com.shushanfx.zconfig.client.config.ZKPropertiesConfig;
+import com.shushanfx.zconfig.client.listener.ZKConfigListener;
 import com.shushanfx.zconfig.client.util.Assert;
 import com.shushanfx.zconfig.client.util.IPUtils;
-import com.shushanfx.zconfig.client.util.JSON;
+import com.shushanfx.zconfig.client.util.JSONUtils;
 import org.I0Itec.zkclient.IZkDataListener;
 import org.I0Itec.zkclient.IZkStateListener;
 import org.I0Itec.zkclient.ZkClient;
@@ -21,8 +19,8 @@ import java.util.*;
  * The client to communicate with the zookeeper server.
  * Created by shushanfx on 2017/6/12.
  */
-public class ZClient implements IZkStateListener, IZkDataListener {
-    private static final Logger logger = LoggerFactory.getLogger(ZClient.class);
+public class ZKConfigClient implements IZkStateListener, IZkDataListener {
+    private static final Logger logger = LoggerFactory.getLogger(ZKConfigClient.class);
 
     private ZkClient client = null;
     private String path = null;
@@ -30,25 +28,25 @@ public class ZClient implements IZkStateListener, IZkDataListener {
     private int connectTimeout = 30000;
     private boolean monitor = true;
     private String monitorPath = null;
-    private ZNodeConnection vNode = null;
+    private ZKConfigConnection vNode = null;
 
     private String scheme = null;
     private String username = null;
     private String password = null;
 
-    private ZNodeParser parser = null;
-    private List<ZNodeListener> listeners = null;
+    private ZKConfigParser parser = null;
+    private List<ZKConfigListener> listeners = null;
 
 
-    public ZClient(){
+    public ZKConfigClient() {
         listeners = new ArrayList<>();
     }
 
     /**
      * auth with username and password.
      */
-    public void auth(){
-        if(username!=null){
+    public void auth() {
+        if (username != null) {
             try {
                 client.addAuthInfo(this.scheme, (username + ":" + password).getBytes("UTF8"));
             } catch (UnsupportedEncodingException e) {
@@ -68,20 +66,20 @@ public class ZClient implements IZkStateListener, IZkDataListener {
             Assert.notNull(monitorPath, "Monitor is set, and the monitor path can not be null");
         }
         client = new ZkClient(servers, connectTimeout);
+        client.setZkSerializer(new ZKConfigSerializer());
         this.auth();
-        if(isMonitor()){
-            try{
+        if (isMonitor()) {
+            try {
                 handleNewSession();
-            } catch (Exception e){
+            } catch (Exception e) {
                 logger.error("Register monitor fail.", e);
             }
         }
-
         client.watchForData(this.path);
         client.subscribeStateChanges(this);
         client.subscribeDataChanges(this.path, this);
         Object value = client.readData(this.path, true);
-        if(value == null){
+        if (value == null) {
             logger.error("The config is null.");
         }
         try {
@@ -139,11 +137,11 @@ public class ZClient implements IZkStateListener, IZkDataListener {
         this.password = password;
     }
 
-    public ZNodeParser getParser() {
+    public ZKConfigParser getParser() {
         return parser;
     }
 
-    public void setParser(ZNodeParser parser) {
+    public void setParser(ZKConfigParser parser) {
         this.parser = parser;
     }
 
@@ -164,39 +162,52 @@ public class ZClient implements IZkStateListener, IZkDataListener {
 
     }
 
-    public void addListener(ZNodeListener listener){
+    public void addListener(ZKConfigListener listener) {
         listeners.add(listener);
     }
 
-    public void removeListener(ZNodeListener listener){
+    public void removeListener(ZKConfigListener listener) {
         listeners.remove(listener);
     }
 
     @Override
     public void handleNewSession() throws Exception {
         if (monitor) {
-            vNode = new ZNodeConnection();
+            vNode = new ZKConfigConnection();
             vNode.setId(UUID.randomUUID().toString());
             vNode.setPath(path);
             vNode.setConnectedTime(System.currentTimeMillis());
             StringBuilder ip = new StringBuilder();
             List<String> list = IPUtils.getAddresses();
             int iCount = 0;
-            for(String item: list){
-                if(iCount > 0){
+            for (String item : list) {
+                if (iCount > 0) {
                     ip.append(",");
                 }
                 ip.append(item);
-                iCount ++;
+                iCount++;
             }
             vNode.setIp(ip.toString());
-            client.createEphemeral(monitorPath + "/" + vNode.getId(), JSON.serialize(vNode));
+            client.createEphemeral(monitorPath + "/" + vNode.getId(), JSONUtils.toString(vNode));
+        }
+        if (listeners != null) {
+            for (ZKConfigListener listener : listeners) {
+                try {
+                    listener.connected();
+                } catch (Exception e) {
+                    listener.error(ZKConfigError.ERROR_CONNECT, e);
+                }
+            }
         }
     }
 
     @Override
     public void handleSessionEstablishmentError(Throwable error) throws Exception {
-
+        if (listeners != null) {
+            for (ZKConfigListener listener : listeners) {
+                listener.error(ZKConfigError.ERROR_CONNECT, error);
+            }
+        }
     }
 
     @Override
@@ -205,23 +216,33 @@ public class ZClient implements IZkStateListener, IZkDataListener {
         if (data != null) {
             value = data.toString();
         }
-        if(parser == null){
+        if (parser == null) {
             logger.info("No parse is config, use default properties config.");
-            parser = new ZNodePropertiesConfig();
+            parser = new ZKPropertiesConfig();
         }
-        final ZNodeConfig config = parser.parse(value);
-        config.setContent(value);
-        if(listeners!=null && listeners.size() > 0){
-            listeners.forEach(item -> item.handle(config));
+        try {
+            ZKConfig config = parser.parse(value);
+            config.setContent(value);
+            if (listeners != null && listeners.size() > 0) {
+                for (ZKConfigListener listener : listeners) {
+                    try {
+                        listener.handle(config);
+                    } catch (Exception e) {
+                        listener.error(ZKConfigError.ERROR_HANDLE, e);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            if (listeners != null) {
+                for (ZKConfigListener listener : listeners) {
+                    listener.error(ZKConfigError.ERROR_HANDLE, e);
+                }
+            }
         }
-        else{
-            logger.error("No data listener is registered.");
-        }
+
     }
-
-
     @Override
     public void handleDataDeleted(String dataPath) throws Exception {
-
+        handleDataChange(dataPath, null);
     }
 }

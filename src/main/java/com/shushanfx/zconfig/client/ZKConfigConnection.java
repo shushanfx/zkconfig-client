@@ -5,7 +5,7 @@ package com.shushanfx.zconfig.client;
  * Connection information.
  * Created by shushanfx on 2017/6/12.
  */
-public class ZNodeConnection {
+public class ZKConfigConnection {
     private String ip = null;
     private String id = null;
     private String path = null;

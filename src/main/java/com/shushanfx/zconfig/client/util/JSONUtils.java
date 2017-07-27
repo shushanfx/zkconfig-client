@@ -9,10 +9,10 @@ import java.util.Map;
 /**
  * Created by shushanfx on 2017/6/12.
  */
-public class JSON {
+public class JSONUtils {
     private static final Gson gson = new Gson();
 
-    public static String serialize(Object obj){
+    public static String toString(Object obj){
         if(obj == null){
             return "{}";
         }

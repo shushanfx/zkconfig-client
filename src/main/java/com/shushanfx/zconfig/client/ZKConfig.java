@@ -1,4 +1,4 @@
-package com.shushanfx.zconfig.client.config;
+package com.shushanfx.zconfig.client;
 
 import java.util.List;
 import java.util.Map;
@@ -7,7 +7,7 @@ import java.util.Map;
  * 用于获取配置信息的的载体，可以通过该载体读取配置信息。
  * Created by shushanfx on 2017/6/12.
  */
-public interface ZNodeConfig {
+public interface ZKConfig {
     Object getValue(String path);
     Integer getInteger(String path);
     int getInteger(String path, int defaultValue);

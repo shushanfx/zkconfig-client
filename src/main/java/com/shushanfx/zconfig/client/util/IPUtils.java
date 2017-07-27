@@ -1,6 +1,6 @@
 package com.shushanfx.zconfig.client.util;
 
-import com.shushanfx.zconfig.client.ZClient;
+import com.shushanfx.zconfig.client.ZKConfigClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +17,7 @@ import java.util.List;
  * Created by shushanfx on 2017/6/20.
  */
 public class IPUtils {
-    private static final Logger logger = LoggerFactory.getLogger(ZClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(ZKConfigClient.class);
 
     public static String getLocalHostIP() {
         String ip;

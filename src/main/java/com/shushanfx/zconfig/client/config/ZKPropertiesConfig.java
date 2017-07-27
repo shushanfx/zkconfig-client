@@ -1,6 +1,7 @@
 package com.shushanfx.zconfig.client.config;
 
-import com.shushanfx.zconfig.client.parser.ZNodeParser;
+import com.shushanfx.zconfig.client.ZKConfig;
+import com.shushanfx.zconfig.client.ZKConfigParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,8 +14,8 @@ import java.util.Properties;
  * 字符串
  * Created by shushanfx on 2017/6/12.
  */
-public class ZNodePropertiesConfig extends AbstractZNodeConfig implements ZNodeParser {
-    private static final Logger logger = LoggerFactory.getLogger(ZNodePropertiesConfig.class);
+public class ZKPropertiesConfig extends AbstractZKConfig implements ZKConfigParser {
+    private static final Logger logger = LoggerFactory.getLogger(ZKPropertiesConfig.class);
     Properties properties = null;
 
     @Override
@@ -84,7 +85,7 @@ public class ZNodePropertiesConfig extends AbstractZNodeConfig implements ZNodeP
     }
 
     @Override
-    public ZNodeConfig parse(String content) {
+    public ZKConfig parse(String content) {
         properties = new Properties();
         if (content != null) {
             try {
